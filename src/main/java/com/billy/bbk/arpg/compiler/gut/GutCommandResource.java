@@ -4,13 +4,15 @@ package com.billy.bbk.arpg.compiler.gut;
  * @author lei.liu
  * @since 2019-06-12 13:55
  */
-final class GutCommandResource {
+public final class GutCommandResource {
     private GutCommandResource() {}
 
-    static String GUTEVENT = "GUTEVENT";
+    static final String GUTEVENT = "GUTEVENT";
 
-    // 命令文本
-    static String[] COMMAND_TEXT = {
+    /**
+     * 命令文本
+     */
+    public static final String[] COMMAND_TEXT = {
             "Music",
             "LoadMap",
             "CreateActor",
@@ -91,8 +93,10 @@ final class GutCommandResource {
             "TestGoodsNum"
     };
 
-    // 标签参数
-    static String[] COMMAND_PARAM = {
+    /**
+     * 命令参数
+     */
+    public static final String[] COMMAND_PARAM = {
             "NN",
             "NNNN",
             "NNN",

@@ -97,7 +97,7 @@ public class GutCompiler {
     }
 
     private void parsePath() {
-        int lastDot = txtPath.lastIndexOf(".");
+        int lastDot = txtPath.lastIndexOf('.');
         if (-1 == lastDot) {
             throw new RuntimeException("file path ["+txtPath+"] does not have an extension");
         }
@@ -304,7 +304,7 @@ public class GutCompiler {
 
         logger.debug("command="+name+", param=" + param +
                 ", command index=" + commandIndex + "/" + commandCode +
-                ", paramInShort=" + paramInShort + ",,,,,binCode=" + binCodeInHexStr);
+                ", paramInShort=" + paramInShort + ",binCode=" + binCodeInHexStr);
         return commandCode + binCodeInHexStr;
     }
 

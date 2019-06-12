@@ -13,7 +13,7 @@ import static org.junit.Assert.assertTrue;
 public class FileTypeTest {
     @Test
     public void contain_normal() {
-        assertTrue(FileType.contains("GUT"));
+        assertTrue(FileType.contains(FileType.ARS.name()));
     }
 
     @Test

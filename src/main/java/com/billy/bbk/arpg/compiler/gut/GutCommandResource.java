@@ -7,6 +7,8 @@ package com.billy.bbk.arpg.compiler.gut;
 final class GutCommandResource {
     private GutCommandResource() {}
 
+    static String GUTEVENT = "GUTEVENT";
+
     // 命令文本
     static String[] COMMAND_TEXT = {
             "Music",

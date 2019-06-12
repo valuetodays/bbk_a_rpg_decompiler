@@ -15,4 +15,10 @@ public class ByteUtilsTest {
         Assert.assertEquals("0700", s);
     }
 
+    @Test
+    public void testInt2HexString() {
+        String s = ByteUtils.int2HexString(7);
+        Assert.assertEquals("07000000", s);
+    }
+
 }

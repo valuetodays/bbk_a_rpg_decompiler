@@ -36,8 +36,8 @@ public class GutCompiler {
     private String scriptBytesStr;
     private String jumpTableBytesStr;
 
-    public String compile(String txtPath) throws Exception {
-        logger.debug("starting compiling");
+    public String compile(String txtPath) throws IOException {
+        logger.info("start to compile");
         this.txtPath = txtPath;
 
         parsePath();
@@ -51,7 +51,7 @@ public class GutCompiler {
         FileOutputStream fos = new FileOutputStream(gutPath);
         writeFile(fos);
         IOUtils.closeQuietly(fos);
-        logger.debug("compiled successfully.");
+        logger.info("compiled successfully.");
 
         FileInputStream is = new FileInputStream(new File(gutPath));
         String output = IOUtils.toString(is);
@@ -59,14 +59,14 @@ public class GutCompiler {
         return output;
     }
 
-    private void writeFile(FileOutputStream fos) throws Exception {
+    private void writeFile(FileOutputStream fos) throws IOException {
         byte jumpTableSize = (byte)(jumpTable.length*2);
         short fileSize = (short)(Short.BYTES + Byte.BYTES + jumpTableBytesStr.length()/2 + scriptBytesStr.length()/2);
         String fileSizeHex = ByteUtils.short2HexString(fileSize);
 
-        logger.debug("fileSize=" + fileSize + ", fileSizeHex=" + fileSizeHex);
-        logger.debug("jumpTableBytesStr=[" + jumpTableBytesStr + "]");
-        logger.debug("scriptBytesStr=[" + scriptBytesStr + "]");
+        logger.debug("fileSize={}, fileSizeHex={}.", fileSize, fileSizeHex);
+        logger.debug("jumpTableBytesStr=[{}]", jumpTableBytesStr);
+        logger.debug("scriptBytesStr=[{}]", scriptBytesStr);
 
         if (!(type == 0 && index == 0)) {
             fos.write(type);
@@ -82,7 +82,7 @@ public class GutCompiler {
         writeHexString(fos, scriptBytesStr);
     }
 
-    private static void writeHexString(FileOutputStream fos, String hex) throws IOException {
+    private void writeHexString(FileOutputStream fos, String hex) throws IOException {
         if (StringUtils.isEmpty(hex)) {
             throw new RuntimeException("illegal hex string");
         }
@@ -116,7 +116,7 @@ public class GutCompiler {
         }
     }
 
-    private void parseCommand() throws Exception {
+    private void parseCommand() throws IOException {
         FileInputStream fileInputStream = new FileInputStream(txtPath);
         InputStreamReader inputStreamReader = new InputStreamReader(fileInputStream, "gbk");
         BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
@@ -154,10 +154,11 @@ public class GutCompiler {
 
     private void parseGuteventTag() {
         int maxGuteventNumber = 0; // 最大gutevent编号，影响到转移表的大小
-        Map<String, Integer> guteventTag = new HashMap<>(); // gutevent的标签
+        Map<String, Integer> guteventTagMap = new HashMap<>(); // gutevent的标签
+
         for (GutCommand ci : commandInfoList) {
             String name = ci.getName();
-            if ("GUTEVENT".equals(name)) {
+            if (GutCommandResource.GUTEVENT.equals(name)) {
                 String param = ci.getParam();
                 String tagNumber = param.split(" ")[0];
                 int n = Integer.parseInt(tagNumber);
@@ -165,21 +166,21 @@ public class GutCompiler {
                     maxGuteventNumber = Math.max(n, maxGuteventNumber);
                 }
                 String tagName = param.split(" ")[1];
-                guteventTag.put(tagName, n);
+                guteventTagMap.put(tagName, n);
             }
         }
 
-        logger.debug("maxGuteventNumber="+maxGuteventNumber);
+        logger.debug("maxGuteventNumber={}.", maxGuteventNumber);
         jumpTable = new short[maxGuteventNumber];
-        this.guteventTag = guteventTag;
+        this.guteventTag = Collections.unmodifiableMap(guteventTagMap);
     }
 
     /**
      * 解析出label所在的地址
      * @param commandInfoList 命令集合
-     * @throws Exception e
+     * @throws IOException e
      */
-    private void parseLabelAddr(List<GutCommand> commandInfoList) throws Exception {
+    private void parseLabelAddr(List<GutCommand> commandInfoList) throws IOException {
         Map<String, Integer> labelAddrMap = new HashMap<>(); // 普通标签
 
         int curBytes = 0;
@@ -201,7 +202,7 @@ public class GutCompiler {
         this.labelAddrMap = Collections.unmodifiableMap(labelAddrMap);
     }
 
-    private void parseScriptBytesStr() throws Exception {
+    private void parseScriptBytesStr() throws IOException {
         StringBuilder scriptBytesStr = new StringBuilder();
         int curBytes = 0;
         for (GutCommand ci : commandInfoList) {
@@ -240,11 +241,11 @@ public class GutCompiler {
      * @param ci 命令
      * @param labelAddrMap l
      * @param jumpTableLength j
-     * @throws Exception e
+     * @throws IOException e
      */
     private String getBytesOfCommandInfo(GutCommand ci,
                                                 Map<String, Integer> labelAddrMap,
-                                                int jumpTableLength) throws Exception {
+                                                int jumpTableLength) throws IOException {
         String name = ci.getName();
         final String param = ci.getParam();
         String[] paramArr = param.split(" ");
@@ -312,7 +313,7 @@ public class GutCompiler {
      * @param commandName 命令名称
      * @return 命令编号 (in hex)
      */
-    private static String getCommandCode(String commandName) {
+    private String getCommandCode(String commandName) {
         if (StringUtils.isEmpty(commandName)) {
             throw new RuntimeException("unknown command exception: " + commandName);
         }

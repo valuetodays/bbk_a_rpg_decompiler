@@ -20,3 +20,7 @@
  如我的配置
  
  mvn clean test sonar:sonar -Dsonar.host.url=http://s204:9000 -DskipTests=false
+
+ #### 打包测试类成jar并运行
+
+`mvn clean package -DskipTests` and run `run-test.[sh/bat]`
